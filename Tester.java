@@ -7,6 +7,6 @@ public class Tester {
 		cb.init();
 		cb.drawBoard();
 		
-		cb.play();
+		cb.playRandom();
 	}
 }
