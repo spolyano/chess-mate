@@ -7,6 +7,12 @@ public class Tester {
 		cb.init();
 		cb.drawBoard();
 		
-		cb.playRandom();
+		cb.play();
+		//cb.playRandom();
+		
+		/*
+        Chess chess = new Chess();
+        chess.setVisible(true);*/
+        
 	}
 }

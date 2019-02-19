@@ -6,7 +6,8 @@ public abstract class ChessFigure {
 	
 	public final static int PAWN = 1;
 	public final static int ROOK = 2;
-
+	public final static int BISHOP = 3;
+	
 	int pos_x;
 	int pos_y;
 	int rank;
@@ -35,13 +36,15 @@ public abstract class ChessFigure {
 		return color;
 	}
 	
+	public int getRank() {
+		return rank;
+	}
+	
 	public void printFigure() {
 		System.out.print("["+ rank + "-" + color + "]");	
 	}
 		
-	public abstract boolean canMove(int pos_x, int pos_y);
 	public abstract int[][] getPositionList();
-	
 }
 
 final class Pawn extends ChessFigure{
@@ -49,34 +52,34 @@ final class Pawn extends ChessFigure{
 	public Pawn(int color, int pos_x, int pos_y) {
 		super(PAWN, color, pos_x, pos_y);
 	}
-	
-	public boolean canMove(int pos_x, int pos_y) {
-		if (color == WHITE) {
-			if ((pos_x == this.pos_x) && ((pos_y == this.pos_y + 1)|| ((pos_y == this.pos_y + 2)&&(this.pos_y == 2))) && (pos_y < 9))
-				return true;
-			else return false;
-			}
-		else{
-			if ((pos_x == this.pos_x) && ((pos_y == this.pos_y - 1)|| ((pos_y == this.pos_y - 2)&&(this.pos_y == 7))) && (pos_y > 0))
-				return true;
-			else return false;
-		}
-	}
-	
+
 	public int[][] getPositionList(){
-		int[][] posList = new int[2][64];
-		int posNum = 0;
+		int[][] posList = new int[64][2];
 		
-		for(int i = 0; i < 8; i++)
-			for(int j = 0; j < 8; j++)
-				if(canMove(i,j)) {
-					posList[0][posNum] = i;
-					posList[1][posNum] = j;
-					posNum++;
-				}
-		
+		if (color == WHITE) {
+			if (pos_y == 2) {
+				posList[0][0] = pos_x;
+				posList[0][1] = 3;
+				posList[1][0] = pos_x;
+				posList[1][1] = 4;
+			}
+			else if (pos_y < 8) {
+				posList[0][0] = pos_x;
+				posList[0][1] = pos_y + 1;
+			}	
+		}
+		else if (color == BLACK) {
+			if (pos_y == 7) {
+				posList[0][0] = pos_x;
+				posList[0][1] = 6;
+				posList[1][0] = pos_x;
+				posList[1][1] = 5;
+			}
+			else if (pos_y > 1)  {
+				posList[0][0] = pos_x;
+				posList[0][1] = pos_y - 1;
+			}	
+		}	
 		return posList;
-	}
-	
-	
-}
+	}	
+}//Pawn
