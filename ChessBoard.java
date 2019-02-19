@@ -1,9 +1,13 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class ChessBoard {
 	private ArrayList<ChessFigure> figures;
 	Scanner keyRead;
+	
+	public final static int MOVE = 1;
+	public final static int ATTACK = 2;
 	
 	// **internal methods **
 	
@@ -23,17 +27,26 @@ public class ChessBoard {
 		return input;
 	}
 	
-	private int randomFigure() {
-		int[] input = new int[2];
-		int figureID;
-		while(true) {
-			input[0] = (int) (8 * Math.random());
-			input[1] = (int) (8 * Math.random());
-			
-			figureID = findFigure(input[0], input[1]);
-			if (figureID >= 0) break;		
-		}	
-		return figureID;
+	private int[][] generatePath(int figureID){
+		int[][] path = new int[64][3];
+		int[][] posList = figures.get(figureID).getPositionList();
+		int rank = figures.get(figureID).getRank();
+		
+		if (rank == ChessFigure.PAWN) {
+			int i = 0;
+			while (posList[i][0] > 0) {
+				int onPos = findFigure(posList[i][0], posList[i][1]);				
+				if (onPos < 0) {
+					path[i][0] = posList[i][0];
+					path[i][1] = posList[i][1];
+					path[i][2] = MOVE;
+				}
+				else break;
+				
+				i++;
+			}
+		}
+		return path;
 	}
 	
 	// ** public methods **
@@ -47,7 +60,6 @@ public class ChessBoard {
 			figures.add(new Pawn(ChessFigure.BLACK, i + 1, 7));
 		}
 	}
-
 	
 	public void drawBoard() {
 		for (int i = 0; i < 8; i++) {
@@ -64,27 +76,9 @@ public class ChessBoard {
 					figures.get(fPos).printFigure();
 				else System.out.print("[ x ]");
 			}
-			System.out.print("\n");	
+			System.out.print("\n");
 		}
 		System.out.print("\n");
-	}
-	
-	public void playRandom(){
-		int[][] posList = new int[2][64];
-		
-		int figureID;
-		for (int i = 0; i < 10; i++) {	
-			figureID = randomFigure();
-			posList = figures.get(figureID).getPositionList();
-			int randPos = (int) ((posList.length-1) * Math.random());
-			figures.get(figureID).setPosition(posList[0][randPos], posList[1][randPos]);
-			drawBoard();
-			try {
-				Thread.sleep(1500);
-			} catch (InterruptedException e) {
-				System.out.print("Iterrupted");
-			}
-		}		
 	}
 	
 	public void play() {
@@ -93,23 +87,33 @@ public class ChessBoard {
 		
 		int now = ChessFigure.WHITE;
 		int[] posXY = new int[2];
-		int[][] posList = new int[2][64];
+		int[][] posList = new int[64][3];
 		
-		System.out.println("Select WHITE (0) figure: ");
+		//test for - 4-mal
+		//any key but number will break
+		for(int i = 0; i < 4; i++) {
+		
+		System.out.println("Select figure: ");
 		posXY = inputPosition();
 
 		int figureID = findFigure(posXY[0], posXY[1]);
 		if (figureID >= 0) {
+			//print possible positions
+			posList = generatePath(figureID);
+			System.out.println(Arrays.deepToString(posList));
 			
-			System.out.println("Select new position: ");
-			posXY = inputPosition();
-			
-			if (figures.get(figureID).canMove(posXY[0], posXY[1])) {
+			if (posList[0][0] > 0) {
+				//set to new position
+				System.out.println("Select new position: ");
+				posXY = inputPosition();
+				
+				//test set
 				figures.get(figureID).setPosition(posXY[0], posXY[1]);
 				drawBoard();
 			}
-			else System.out.print("not a valid move");
 		}
+		
+		}//end test-for
 		
 		keyRead.close();
 	}
