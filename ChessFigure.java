@@ -12,19 +12,14 @@ public abstract class ChessFigure {
 	int pos_y;
 	int rank;
 	int color;
+	int figureID;//not sure if needed
 	
-	public ChessFigure(int rank, int color, int pos_x, int pos_y) {
+	public ChessFigure(int figureID, int rank, int color, int pos_x, int pos_y) {
 		this.pos_x = pos_x;
 		this.pos_y = pos_y;
 		this.rank = rank;
 		this.color = color;
-	}
-	
-	// true: input = current position
-	public boolean onPosition(int pos_x, int pos_y){
-		if (this.pos_x == pos_x && this.pos_y == pos_y)
-			return true;
-		else return false;
+		this.figureID = figureID;
 	}
 	
 	public void setPosition(int pos_x, int pos_y) {
@@ -49,37 +44,138 @@ public abstract class ChessFigure {
 
 final class Pawn extends ChessFigure{
 	
-	public Pawn(int color, int pos_x, int pos_y) {
-		super(PAWN, color, pos_x, pos_y);
+	public Pawn(int figureID, int color, int pos_x, int pos_y) {
+		super(figureID, PAWN, color, pos_x, pos_y);
 	}
 
 	public int[][] getPositionList(){
 		int[][] posList = new int[64][2];
+		int[][] cells = ChessBoard.getBoardCells();
 		
 		if (color == WHITE) {
-			if (pos_y == 2) {
-				posList[0][0] = pos_x;
-				posList[0][1] = 3;
-				posList[1][0] = pos_x;
-				posList[1][1] = 4;
+			if (pos_y == 1) {
+				if ((cells[pos_x][pos_y + 1] < 0)&&(cells[pos_x][pos_y + 2] < 0)) {	
+					posList[0][0] = pos_x;
+					posList[0][1] = pos_y + 1;
+					posList[1][0] = pos_x;
+					posList[1][1] = pos_y + 2;
+				}
+				else if ((cells[pos_x][pos_y + 1] < 0)&&(cells[pos_x][pos_y + 2] >= 0)) {
+					posList[0][0] = pos_x;
+					posList[0][1] = pos_y + 1;
+				}
 			}
-			else if (pos_y < 8) {
-				posList[0][0] = pos_x;
-				posList[0][1] = pos_y + 1;
+			else if (pos_y < 7) {
+				if (cells[pos_x][pos_y + 1] < 0) {
+					posList[0][0] = pos_x;
+					posList[0][1] = pos_y + 1;
+				}
 			}	
 		}
 		else if (color == BLACK) {
-			if (pos_y == 7) {
-				posList[0][0] = pos_x;
-				posList[0][1] = 6;
-				posList[1][0] = pos_x;
-				posList[1][1] = 5;
+			if (pos_y == 6) {
+				if ((cells[pos_x][pos_y - 1] < 0)&&(cells[pos_x][pos_y - 2] < 0)) {	
+					posList[0][0] = pos_x;
+					posList[0][1] = pos_y - 1;
+					posList[1][0] = pos_x;
+					posList[1][1] = pos_y - 2;
+				}
+				else if ((cells[pos_x][pos_y - 1] < 0)&&(cells[pos_x][pos_y - 2] >= 0)) {
+					posList[0][0] = pos_x;
+					posList[0][1] = pos_y - 1;
+				}
 			}
-			else if (pos_y > 1)  {
-				posList[0][0] = pos_x;
-				posList[0][1] = pos_y - 1;
+			else if (pos_y > 0)  {
+				if (cells[pos_x][pos_y - 1] < 0) {
+					posList[0][0] = pos_x;
+					posList[0][1] = pos_y - 1;
+				}
 			}	
 		}	
 		return posList;
 	}	
+	
 }//Pawn
+
+final class Bishop extends ChessFigure{
+	
+	public Bishop(int figureID, int color, int pos_x, int pos_y) {
+		super(figureID, BISHOP, color, pos_x, pos_y);
+	}
+
+	public int[][] getPositionList(){
+		int[][] posList = new int[64][2];
+		int[][] cells = ChessBoard.getBoardCells();
+		
+		boolean canMove = true;
+		int i;
+		int amount = 0;
+		
+		//N-W
+		i = 1;
+		canMove = true;
+		while (canMove) {
+			if ((pos_x + i <= 7)&&(pos_y - i >= 0))
+				if ((cells[pos_x + i][pos_y - i] < 0)) {
+					posList[amount][0] = pos_x + i;
+					posList[amount][1] = pos_y - i;	
+					i++;
+					amount++;
+				}
+				else {
+					canMove = false;
+				}
+			else canMove = false;
+		}
+		//S-W
+		i = 1;
+		canMove = true;
+		while (canMove) {
+			if ((pos_x + i <= 7)&&(pos_y + i <= 7))
+				if ((cells[pos_x + i][pos_y + i] < 0)) {
+					posList[amount][0] = pos_x + i;
+					posList[amount][1] = pos_y + i;	
+					i++;
+					amount++;
+				}
+				else {
+					canMove = false;
+				}
+			else canMove = false;
+		}
+		//S-E
+		i = 1;
+		canMove = true;
+		while (canMove) {
+			if((pos_x - i >= 0)&&(pos_y + i <= 7))
+				if ((cells[pos_x - i][pos_y + i] < 0)) {
+					posList[amount][0] = pos_x - i;
+					posList[amount][1] = pos_y + i;	
+					i++;
+					amount++;
+				}
+				else {
+					canMove = false;
+				}
+			else canMove = false;
+		}
+		//N-E
+		i = 1;
+		canMove = true;
+		while (canMove) {
+			if((pos_x - i >= 0)&&(pos_y - i >= 0))
+				if ((cells[pos_x - i][pos_y - i] < 0)) {
+					posList[amount][0] = pos_x - i;
+					posList[amount][1] = pos_y - i;	
+					i++;
+					amount++;
+				}
+				else {
+					canMove = false;
+				}
+			else canMove = false;
+		}
+		return posList;
+	}	
+	
+}//Bishop
