@@ -6,47 +6,29 @@ public class ChessBoard {
 	private ArrayList<ChessFigure> figures;
 	Scanner keyRead;
 	
-	public final static int MOVE = 1;
-	public final static int ATTACK = 2;
+	private static int[][] boardCells = new int[8][8];
 	
 	// **internal methods **
-	
-	// return ID of figure on [x,y] position
-	private int findFigure(int pos_x, int pos_y) {
-		for (int i = 0; i < figures.size(); i++)
-			if(figures.get(i).onPosition(pos_x, pos_y)) return i;
-		return -1;		
-	}
-	
+
 	private int[] inputPosition() {
 		int[] input = new int[2];
-		System.out.print("x [1-8] ");
+		System.out.print("x [0-7] ");
 		input[0] = keyRead.nextInt();
-		System.out.print("y [1-8] ");
+		System.out.print("y [0-7] ");
 		input[1] = keyRead.nextInt();
 		return input;
 	}
 	
-	private int[][] generatePath(int figureID){
-		int[][] path = new int[64][3];
-		int[][] posList = figures.get(figureID).getPositionList();
-		int rank = figures.get(figureID).getRank();
-		
-		if (rank == ChessFigure.PAWN) {
-			int i = 0;
-			while (posList[i][0] > 0) {
-				int onPos = findFigure(posList[i][0], posList[i][1]);				
-				if (onPos < 0) {
-					path[i][0] = posList[i][0];
-					path[i][1] = posList[i][1];
-					path[i][2] = MOVE;
-				}
-				else break;
-				
-				i++;
-			}
-		}
-		return path;
+	private void changePosition(int figureID, int[] posCurrentXY, int[] posNewXY) {
+		boardCells[posCurrentXY[0]][posCurrentXY[1]] = -1;
+		boardCells[posNewXY[0]][posNewXY[1]] = figureID;
+		figures.get(figureID).setPosition(posNewXY[0], posNewXY[1]);
+	}
+
+	// ** static methods **
+	
+	public static int[][] getBoardCells(){
+		return boardCells;
 	}
 	
 	// ** public methods **
@@ -54,11 +36,34 @@ public class ChessBoard {
 	public void init() {
 		figures = new ArrayList<ChessFigure>();
 		
+		// -1 == no figure
+		for (int i = 0; i< 8; i++)
+			for (int j = 0; j< 8; j++)
+				boardCells[i][j] = -1;
+		
+		int figureID = 0;	
 		//create 8 pawns
 		for (int i = 0; i < 8; i++) {
-			figures.add(new Pawn(ChessFigure.WHITE, i + 1, 2));
-			figures.add(new Pawn(ChessFigure.BLACK, i + 1, 7));
+			figures.add(figureID, new Pawn(figureID, ChessFigure.WHITE, i, 1));
+			boardCells[i][1] = figureID;
+			figureID++;
+			
+			figures.add(figureID, new Pawn(figureID, ChessFigure.BLACK, i, 6));
+			boardCells[i][6] = figureID;
+			figureID++;
 		}
+		
+		//create 2 bishops
+		for (int i = 2; i < 6; i+=3) {
+			figures.add(figureID, new Bishop(figureID, ChessFigure.WHITE, i, 0));
+			boardCells[i][0] = figureID;
+			figureID++;
+			
+			figures.add(figureID, new Bishop(figureID, ChessFigure.BLACK, i, 7));
+			boardCells[i][7] = figureID;
+			figureID++;
+		}
+		
 	}
 	
 	public void drawBoard() {
@@ -66,12 +71,12 @@ public class ChessBoard {
 			if (i == 0) {
 				System.out.print("[---]");
 				for (int j = 0; j < 8; j++)
-					System.out.print("[x:"+ (j + 1) +"]");
+					System.out.print("[x:"+ j +"]");
 				System.out.print("\n\n");
 			}
-			System.out.print("[y:"+ (i + 1) +"]");
+			System.out.print("[y:"+ i +"]");
 			for (int j = 0; j < 8; j++) {
-				int fPos = findFigure(j + 1, i + 1);
+				int fPos = boardCells[j][i];
 				if (fPos >= 0)
 					figures.get(fPos).printFigure();
 				else System.out.print("[ x ]");
@@ -85,30 +90,36 @@ public class ChessBoard {
 		System.out.println("Game started!");
 		keyRead = new Scanner(System.in);
 		
-		int now = ChessFigure.WHITE;
-		int[] posXY = new int[2];
-		int[][] posList = new int[64][3];
+		int[] posCurrentXY = new int[2];
+		int[] posNewXY = new int[2];
+		int[][] posList = new int[64][2];
 		
 		//test for - 4-mal
 		//any key but number will break
 		for(int i = 0; i < 4; i++) {
 		
 		System.out.println("Select figure: ");
-		posXY = inputPosition();
-
-		int figureID = findFigure(posXY[0], posXY[1]);
+		posCurrentXY = inputPosition();
+		
+		/*viable solution
+		 * figureID = boardCells[posCurrentXY[0]][posCurrentXY[1]];
+		 * posList = figures.get(figureID).getPositionList();
+		 * changePosition(figureID, posCurrentXY, posNewXY);
+		*/
+		
+		int figureID = boardCells[posCurrentXY[0]][posCurrentXY[1]];
 		if (figureID >= 0) {
 			//print possible positions
-			posList = generatePath(figureID);
+			posList = figures.get(figureID).getPositionList();
 			System.out.println(Arrays.deepToString(posList));
 			
 			if (posList[0][0] > 0) {
 				//set to new position
 				System.out.println("Select new position: ");
-				posXY = inputPosition();
+				posNewXY = inputPosition();
 				
 				//test set
-				figures.get(figureID).setPosition(posXY[0], posXY[1]);
+				changePosition(figureID, posCurrentXY, posNewXY);
 				drawBoard();
 			}
 		}
