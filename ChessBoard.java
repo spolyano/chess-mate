@@ -5,6 +5,7 @@ import java.util.Scanner;
 public class ChessBoard {
 	Scanner keyRead;
 	private static ChessFigure[][] figureCells = new ChessFigure[8][8];
+	private ArrayList<int[]> posArray;
 	
 	// **internal methods **
 
@@ -30,6 +31,18 @@ public class ChessBoard {
 	}
 	
 	// ** public methods **
+	
+	public ArrayList<int[]> getPosArray(int i, int j){
+		return figureCells[i][j].getPositionList();
+	}
+	
+	public boolean canMoveToPosition(int[] posNew) {
+		if (posArray.size() > 0)
+			for (int pos = 0; pos < posArray.size(); pos++) 
+			    if (Arrays.equals(posArray.get(pos), posNew))
+			    	return true;
+		return false;
+	}
 	
 	public void init() {
 		//create 8 pawns
@@ -64,34 +77,30 @@ public class ChessBoard {
 		System.out.println("Game started!");
 		keyRead = new Scanner(System.in);
 		
-		int[] posCurrentXY = new int[2];
-		int[] posNewXY = new int[2];
-		ArrayList<int[]> posArray;
+		int[] posCurrent = new int[2];
+		int[] posNew = new int[2];
 		
 		//test for - 4-mal
 		//any key but number will break
 		for(int i = 0; i < 4; i++) {
 		
 		System.out.println("Select figure: ");
-		posCurrentXY = inputPosition();
+		posCurrent = inputPosition();
 		
-		if (figureCells[posCurrentXY[0]][posCurrentXY[1]] != null) {
+		if (figureCells[posCurrent[0]][posCurrent[1]] != null) {
 			
-			posArray = figureCells[posCurrentXY[0]][posCurrentXY[1]].getPositionList();
+			posArray = getPosArray(posCurrent[0], posCurrent[1]);
 			System.out.println(Arrays.deepToString(posArray.toArray()));
 			
 			if (posArray.size() > 0){
 				//set to new position
 				System.out.println("Select new position: ");
-				posNewXY = inputPosition();
+				posNew = inputPosition();
 				
-				//test set
-				for (int pos = 0; pos < posArray.size(); pos++) 
-				    if (Arrays.equals(posArray.get(pos), posNewXY)) {
-				    	changePosition(posCurrentXY, posNewXY);
-						drawBoard();
-						break;
-				    }
+				if (canMoveToPosition(posNew)) {
+					changePosition(posCurrent, posNew);
+					drawBoard();
+				}
 			}
 		}
 		
