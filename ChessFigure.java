@@ -39,6 +39,14 @@ public abstract class ChessFigure {
 	}
 		
 	public abstract ArrayList<int[]> getPositionList();
+	protected void castRay(ArrayList<int[]> res, int dj, int di) {
+		ChessFigure[][] figures = ChessBoard.getFigureCells();
+		int tmpj, tmpi;
+		for(tmpi=pos_i+di, tmpj=pos_j+dj; (tmpi>=0)&&(tmpi<=7)&&(tmpj>=0)&&(tmpi<=7); tmpi+=di, tmpj+=dj) {
+			if(figures[tmpi][tmpj]==null || figures[tmpi][tmpj].getColor()!=color) res.add(new int[] {tmpi, tmpj});
+			if(figures[tmpi][tmpj]!=null) break;
+		}
+	}
 }
 
 final class Pawn extends ChessFigure{
@@ -94,7 +102,12 @@ final class Bishop extends ChessFigure{
 		ArrayList<int[]> posArray = new ArrayList<int[]>();
 		ChessFigure[][] figures = ChessBoard.getFigureCells();
 		
-		boolean canMove = true;
+		castRay(posArray,-1,1);
+		castRay(posArray,-1,-1);
+		castRay(posArray,1,1);
+		castRay(posArray,1,-1);		
+		
+/*		boolean canMove = true;
 		int i;
 		
 		//N-E
@@ -113,6 +126,7 @@ final class Bishop extends ChessFigure{
 				}
 			else canMove = false;
 		}
+		
 		//S-E
 		i = 1;
 		canMove = true;
@@ -160,7 +174,7 @@ final class Bishop extends ChessFigure{
 					canMove = false;
 				}
 			else canMove = false;
-		}
+		}*/
 		return posArray;
 	}	
 	
