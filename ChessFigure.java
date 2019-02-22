@@ -39,6 +39,16 @@ public abstract class ChessFigure {
 	}
 		
 	public abstract ArrayList<int[]> getPositionList();
+	
+	protected void castRay(ArrayList<int[]> res, int di, int dj) {
+		ChessFigure[][] figures = ChessBoard.getFigureCells();
+		int tmpj, tmpi;
+		for(tmpi = pos_i + di, tmpj = pos_j + dj; (tmpi >= 0)&&(tmpi <= 7)&&(tmpj >= 0)&&(tmpj <= 7); tmpi+=di, tmpj+=dj) {
+			if(figures[tmpi][tmpj] == null || figures[tmpi][tmpj].getColor() != color)
+				res.add(new int[] {tmpi, tmpj});
+			if(figures[tmpi][tmpj] != null) break;
+		}
+	}
 }
 
 final class Pawn extends ChessFigure{
@@ -92,75 +102,12 @@ final class Bishop extends ChessFigure{
 
 	public ArrayList<int[]> getPositionList(){
 		ArrayList<int[]> posArray = new ArrayList<int[]>();
-		ChessFigure[][] figures = ChessBoard.getFigureCells();
 		
-		boolean canMove = true;
-		int i;
+		castRay(posArray,-1,1);
+		castRay(posArray,-1,-1);
+		castRay(posArray,1,1);
+		castRay(posArray,1,-1);		
 		
-		//N-E
-		i = 1;
-		canMove = true;
-		while (canMove) {
-			if ((pos_j + i <= 7)&&(pos_i - i >= 0))
-				if ((figures[pos_i - i][pos_j + i] == null)) {	
-					posArray.add(new int[] {pos_i - i, pos_j + i});				
-					i++;
-				}
-				else {
-					if(figures[pos_i - i][pos_j + i].getColor() != color)
-						posArray.add(new int[] {pos_i - i, pos_j + i});
-					canMove = false;
-				}
-			else canMove = false;
-		}
-		//S-E
-		i = 1;
-		canMove = true;
-		while (canMove) {
-			if ((pos_j + i <= 7)&&(pos_i + i <= 7))
-				if ((figures[pos_i + i][pos_j + i] == null)) {
-					posArray.add(new int[] {pos_i + i, pos_j + i});				
-					i++;
-				}
-				else {
-					if(figures[pos_i + i][pos_j + i].getColor() != color)
-						posArray.add(new int[] {pos_i + i, pos_j + i});
-					canMove = false;
-				}
-			else canMove = false;
-		}
-		//S-W
-		i = 1;
-		canMove = true;
-		while (canMove) {
-			if((pos_j - i >= 0)&&(pos_i + i <= 7))
-				if ((figures[pos_i + i][pos_j - i] == null)) {			
-					posArray.add(new int[] {pos_i + i, pos_j - i});				
-					i++;
-				}
-				else {
-					if(figures[pos_i + i][pos_j - i].getColor() != color)
-						posArray.add(new int[] {pos_i + i, pos_j - i});
-					canMove = false;
-				}
-			else canMove = false;
-		}
-		//N-W
-		i = 1;
-		canMove = true;
-		while (canMove) {
-			if((pos_j - i >= 0)&&(pos_i - i >= 0))
-				if ((figures[pos_i - i][pos_j - i] == null)) {
-					posArray.add(new int[] {pos_i - i, pos_j - i});				
-					i++;;
-				}
-				else {
-					if(figures[pos_i - i][pos_j - i].getColor() != color)
-						posArray.add(new int[] {pos_i - i, pos_j - i});
-					canMove = false;
-				}
-			else canMove = false;
-		}
 		return posArray;
 	}	
 	
