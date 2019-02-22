@@ -2,8 +2,8 @@ import java.util.ArrayList;
 
 public abstract class ChessFigure {
 	
-	public final static int ENEMY = 0;// ENEMY
-	public final static int YOU = 1;// YOU
+	public final static int ENEMY = 0;
+	public final static int YOU = 1;
 	
 	public final static int PAWN = 1;
 	public final static int ROOK = 2;
