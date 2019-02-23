@@ -1,3 +1,3 @@
 # chess-mate
 
-A draft to play the classes. Not the chess just right now =)
+Simple chess. Play it with the best AI ever and enjoy =)
