@@ -2,25 +2,16 @@ import java.util.ArrayList;
 
 public abstract class ChessFigure {
 	
-	public final static int ENEMY = 0;
-	public final static int YOU = 1;
-	
-	public final static int PAWN = 1;
-	public final static int ROOK = 2;
-	public final static int KNIGHT = 3;
-	public final static int BISHOP = 4;
-	public final static int QUEEN = 5;
-	public final static int KING = 6;
+	public final static int ENEMY = 1;
+	public final static int YOU = -1;
 	
 	int pos_j;
 	int pos_i;
-	int rank;
 	int color;
 	
-	public ChessFigure(int rank, int color, int pos_i, int pos_j) {
+	public ChessFigure(int color, int pos_i, int pos_j) {
 		this.pos_j = pos_j;
 		this.pos_i = pos_i;
-		this.rank = rank;
 		this.color = color;
 	}
 	
@@ -32,13 +23,9 @@ public abstract class ChessFigure {
 	public int getColor() {
 		return color;
 	}
-	
-	public int getRank() {
-		return rank;
-	}
-	
+
 	public void printFigure() {
-		System.out.print("["+ rank + "-" + color + "]");	
+		System.out.print("["+ getClass().getSimpleName() + "-" + color + "]");	
 	}
 		
 	public abstract ArrayList<int[]> getPositionList();
@@ -65,56 +52,58 @@ public abstract class ChessFigure {
 			if(currentTurn >= turns) break;
 		}
 	}
-
+	
 }
 
 final class Pawn extends ChessFigure{
 	
 	public Pawn(int color, int pos_i, int pos_j) {
-		super(PAWN, color, pos_i, pos_j);
+		super(color, pos_i, pos_j);
 	}
 
+	private void castPawnStep(ArrayList<int[]> res, int di, int dj, int turns) {
+		ChessFigure[][] figures = ChessBoard.getFigureCells();
+		int tmpi, tmpj;
+		int currentTurn = 0;
+		for(tmpi = pos_i + di, tmpj = pos_j + dj; (tmpi >= 0)&&(tmpi <= 7)&&(tmpj >= 0)&&(tmpj <= 7); tmpi+=di, tmpj+=dj) {
+			currentTurn++;
+			if(figures[tmpi][tmpj] == null) {
+				res.add(new int[] {tmpi, tmpj});
+				castPawnDiag(res, tmpi + di, tmpj - 1);
+				castPawnDiag(res, tmpi + di, tmpj + 1);	
+			}
+			castPawnDiag(res, tmpi, tmpj - 1);
+			castPawnDiag(res, tmpi, tmpj + 1);
+			if(figures[tmpi][tmpj] != null) break;
+			if(currentTurn >= turns) break;
+		}
+	}
+	
+	private void castPawnDiag(ArrayList<int[]> res, int di, int dj) {
+		if ((di >= 0)&&(di <= 7)&&(dj >= 0)&&(dj <= 7)) {
+			ChessFigure[][] figures = ChessBoard.getFigureCells();
+			if(figures[di][dj] != null && figures[di][dj].getColor() != color)
+				res.add(new int[] {di, dj});
+		}
+	}
+	
 	public ArrayList<int[]> getPositionList(){
 		ArrayList<int[]> posArray = new ArrayList<int[]>();
-		ChessFigure[][] figures = ChessBoard.getFigureCells();
-		
-		if (color == ENEMY) {
-			if (pos_i == 1) {
-				if ((figures[pos_i + 1][pos_j] == null)&&(figures[pos_i + 2][pos_j] == null)) {	
-					posArray.add(new int[] {pos_i + 1, pos_j});
-					posArray.add(new int[] {pos_i + 2, pos_j});
-				}
-				else if ((figures[pos_i + 1][pos_i] == null)&&(figures[pos_i + 2][pos_j] != null))
-					posArray.add(new int[] {pos_i + 1, pos_j});
-			}
-			else if (pos_i < 7) {
-				if (figures[pos_i + 1][pos_j] == null)
-					posArray.add(new int[] {pos_i + 1, pos_j});
-			}	
-		}
-		else if (color == YOU) {
-			if (pos_i == 6) {
-				if ((figures[pos_i - 1][pos_j] == null)&&(figures[pos_i - 2][pos_j] == null)) {	
-					posArray.add(new int[] {pos_i - 1, pos_j});
-					posArray.add(new int[] {pos_i - 2, pos_j});
-				}
-				else if ((figures[pos_i - 1][pos_j] == null)&&(figures[pos_i - 2][pos_j] != null))
-					posArray.add(new int[] {pos_i - 1, pos_j});
-			}
-			else if (pos_i > 0)  {
-				if (figures[pos_i - 1][pos_j] == null)
-					posArray.add(new int[] {pos_i - 1, pos_j});
-			}	
-		}	
+		if (color == ENEMY)
+			if (pos_i == 1) castPawnStep(posArray, 1, 0, 2);
+			else 			castPawnStep(posArray, 1, 0, 1);
+		else if (color == YOU)
+			if (pos_i == 6) castPawnStep(posArray,-1, 0, 2);
+			else			castPawnStep(posArray,-1, 0, 1);
 		return posArray;
-	}	
+	}
 	
 }//Pawn
 
 final class Rook extends ChessFigure{
 	
 	public Rook(int color, int pos_i, int pos_j) {
-		super(ROOK, color, pos_i, pos_j);
+		super(color, pos_i, pos_j);
 	}
 
 	public ArrayList<int[]> getPositionList(){
@@ -130,7 +119,7 @@ final class Rook extends ChessFigure{
 final class Knight extends ChessFigure{
 	
 	public Knight(int color, int pos_i, int pos_j) {
-		super(KNIGHT, color, pos_i, pos_j);
+		super(color, pos_i, pos_j);
 	}
 
 	public ArrayList<int[]> getPositionList(){
@@ -150,7 +139,7 @@ final class Knight extends ChessFigure{
 final class Bishop extends ChessFigure{
 	
 	public Bishop(int color, int pos_i, int pos_j) {
-		super(BISHOP, color, pos_i, pos_j);
+		super(color, pos_i, pos_j);
 	}
 
 	public ArrayList<int[]> getPositionList(){
@@ -166,7 +155,7 @@ final class Bishop extends ChessFigure{
 final class Queen extends ChessFigure{
 	
 	public Queen(int color, int pos_i, int pos_j) {
-		super(QUEEN, color, pos_i, pos_j);
+		super(color, pos_i, pos_j);
 	}
 
 	public ArrayList<int[]> getPositionList(){
@@ -186,7 +175,7 @@ final class Queen extends ChessFigure{
 final class King extends ChessFigure{
 	
 	public King(int color, int pos_i, int pos_j) {
-		super(KING, color, pos_i, pos_j);
+		super(color, pos_i, pos_j);
 	}
 
 	public ArrayList<int[]> getPositionList(){
