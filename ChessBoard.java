@@ -50,11 +50,9 @@ public class ChessBoard {
 	
 	public void init() {
         //set to null if re-init
-		for (int i=0; i<8; i++){
-            for (int j=0; j<8; j++){
-                figureCells[i][j] = null;
-            }
-        }
+		for (int i=0; i<8; i++)
+			for (int j=0; j<8; j++)
+				figureCells[i][j] = null;
 		//create 8 pawns
 		for (int j = 0; j < 8; j++) {	
 			figureCells[1][j] = new Pawn(ChessFigure.ENEMY, 1, j);
@@ -81,6 +79,49 @@ public class ChessBoard {
 		//create king
 		figureCells[0][4] = new King(ChessFigure.ENEMY, 0, 4);
 		figureCells[7][4] = new King(ChessFigure.YOU, 7, 4);
+	}
+	
+	// ** AI **
+	//select coords of random enemy figure, who can move
+	public int[] getEnemyCurrent() {
+		int[] pos = new int[2];
+		ArrayList<ChessFigure> movableEnemy = new ArrayList<ChessFigure>();
+		
+		for (int i=0; i<8; i++)
+			for (int j=0; j<8; j++)
+            	if (figureCells[i][j] != null)
+                	if (figureCells[i][j].getColor() == ChessFigure.ENEMY) {
+                		pos[0] = i;
+                		pos[1] = j;
+                		posArray = getPosArray(pos);
+                		if (posArray.size() > 0)
+                			movableEnemy.add(figureCells[i][j]);
+                	}
+		
+		int cnt = movableEnemy.size();
+		if (cnt > 0) {
+			cnt = (int) (Math.random() * cnt);
+			pos[0] = movableEnemy.get(cnt).pos_i;
+			pos[1] = movableEnemy.get(cnt).pos_j;
+			posArray = getPosArray(pos);
+		}
+		else return null;
+		
+		return pos;
+	}
+	
+	public int[] getEnemyNew() {
+		int[] pos = new int[2];
+		
+		int cnt = posArray.size();
+		if (cnt > 0) {
+			cnt = (int) (Math.random() * cnt);
+			pos[0] = posArray.get(cnt)[0];
+			pos[1] = posArray.get(cnt)[1];
+		}
+		else return null;
+		
+		return pos;
 	}
 	
 	// ** debug-case with console **
@@ -125,21 +166,23 @@ public class ChessBoard {
 		posCurrent = inputPosition();
 		
 		if (figureCells[posCurrent[0]][posCurrent[1]] != null) {
-			
 			posArray = getPosArray(posCurrent);
-			System.out.println(Arrays.deepToString(posArray.toArray()));
-			
+	
 			if (posArray.size() > 0){
-				//set to new position
 				System.out.println("Select new position: ");
 				posNew = inputPosition();
-				
 				if (canMoveToPosition(posNew)) {
 					changePosition(posNew);
 					drawBoard();
 				}
 			}
 		}
+		
+		//enemy
+		posCurrent = getEnemyCurrent();
+		posNew = getEnemyNew();
+		changePosition(posNew);
+		drawBoard();
 		
 		}//end test-for
 		
