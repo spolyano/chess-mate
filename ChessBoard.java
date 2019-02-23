@@ -56,9 +56,16 @@ public class ChessBoard {
 	}
 	
 	public void changePosition(int[] posNew) {
-		figureCells[posNew[0]][posNew[1]] = figureCells[posCurrent[0]][posCurrent[1]];
-		figureCells[posNew[0]][posNew[1]].setPosition(posNew[0], posNew[1]);
-		figureCells[posCurrent[0]][posCurrent[1]] = null;
+		if ( ((posNew[0] == 0) || (posNew[0] == 7)) && getRank(posCurrent) == "Pawn" ){
+			int color = figureCells[posCurrent[0]][posCurrent[1]].getColor();
+			figureCells[posNew[0]][posNew[1]] = new Queen(color, posNew[0], posNew[1]);
+			figureCells[posCurrent[0]][posCurrent[1]] = null;
+		}
+		else {
+			figureCells[posNew[0]][posNew[1]] = figureCells[posCurrent[0]][posCurrent[1]];
+			figureCells[posNew[0]][posNew[1]].setPosition(posNew[0], posNew[1]);
+			figureCells[posCurrent[0]][posCurrent[1]] = null;
+		}
 	}
 	
 	public void init() {
@@ -173,7 +180,7 @@ public class ChessBoard {
 		
 		//test for - 4-mal
 		//any key but number will break
-		for(int i = 0; i < 4; i++) {
+		for(int i = 0; i < 6; i++) {
 		
 		System.out.println("Select figure: ");
 		posCurrent = inputPosition();
