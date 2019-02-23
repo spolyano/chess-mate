@@ -7,7 +7,10 @@ public abstract class ChessFigure {
 	
 	public final static int PAWN = 1;
 	public final static int ROOK = 2;
-	public final static int BISHOP = 3;
+	public final static int KNIGHT = 3;
+	public final static int BISHOP = 4;
+	public final static int QUEEN = 5;
+	public final static int KING = 6;
 	
 	int pos_j;
 	int pos_i;
@@ -39,6 +42,30 @@ public abstract class ChessFigure {
 	}
 		
 	public abstract ArrayList<int[]> getPositionList();
+	
+	protected void castRay(ArrayList<int[]> res, int di, int dj) {
+		ChessFigure[][] figures = ChessBoard.getFigureCells();
+		int tmpi, tmpj;
+		for(tmpi = pos_i + di, tmpj = pos_j + dj; (tmpi >= 0)&&(tmpi <= 7)&&(tmpj >= 0)&&(tmpj <= 7); tmpi+=di, tmpj+=dj) {
+			if(figures[tmpi][tmpj] == null || figures[tmpi][tmpj].getColor() != color)
+				res.add(new int[] {tmpi, tmpj});
+			if(figures[tmpi][tmpj] != null) break;
+		}
+	}
+	
+	protected void castRay(ArrayList<int[]> res, int di, int dj, int turns) {
+		ChessFigure[][] figures = ChessBoard.getFigureCells();
+		int tmpi, tmpj;
+		int currentTurn = 0;
+		for(tmpi = pos_i + di, tmpj = pos_j + dj; (tmpi >= 0)&&(tmpi <= 7)&&(tmpj >= 0)&&(tmpj <= 7); tmpi+=di, tmpj+=dj) {
+			currentTurn++;
+			if(figures[tmpi][tmpj] == null || figures[tmpi][tmpj].getColor() != color)
+				res.add(new int[] {tmpi, tmpj});
+			if(figures[tmpi][tmpj] != null) break;
+			if(currentTurn >= turns) break;
+		}
+	}
+	
 }
 
 final class Pawn extends ChessFigure{
@@ -84,6 +111,42 @@ final class Pawn extends ChessFigure{
 	
 }//Pawn
 
+final class Rook extends ChessFigure{
+	
+	public Rook(int color, int pos_i, int pos_j) {
+		super(ROOK, color, pos_i, pos_j);
+	}
+
+	public ArrayList<int[]> getPositionList(){
+		ArrayList<int[]> posArray = new ArrayList<int[]>();
+		castRay(posArray,-1, 0);
+		castRay(posArray, 0,-1);
+		castRay(posArray, 0, 1);
+		castRay(posArray, 1, 0); 
+		return posArray;
+	}	
+}//Rook
+
+final class Knight extends ChessFigure{
+	
+	public Knight(int color, int pos_i, int pos_j) {
+		super(KNIGHT, color, pos_i, pos_j);
+	}
+
+	public ArrayList<int[]> getPositionList(){
+		ArrayList<int[]> posArray = new ArrayList<int[]>();
+		castRay(posArray,-2, 1,1);
+		castRay(posArray,-2,-1,1);
+		castRay(posArray, 1,-2,1);
+		castRay(posArray,-1,-2,1);
+		castRay(posArray, 1, 2,1);
+		castRay(posArray,-1, 2,1);
+		castRay(posArray, 2, 1,1);
+		castRay(posArray, 2,-1,1);
+		return posArray;
+	}	
+}//Knight
+
 final class Bishop extends ChessFigure{
 	
 	public Bishop(int color, int pos_i, int pos_j) {
@@ -92,76 +155,50 @@ final class Bishop extends ChessFigure{
 
 	public ArrayList<int[]> getPositionList(){
 		ArrayList<int[]> posArray = new ArrayList<int[]>();
-		ChessFigure[][] figures = ChessBoard.getFigureCells();
-		
-		boolean canMove = true;
-		int i;
-		
-		//N-E
-		i = 1;
-		canMove = true;
-		while (canMove) {
-			if ((pos_j + i <= 7)&&(pos_i - i >= 0))
-				if ((figures[pos_i - i][pos_j + i] == null)) {	
-					posArray.add(new int[] {pos_i - i, pos_j + i});				
-					i++;
-				}
-				else {
-					if(figures[pos_i - i][pos_j + i].getColor() != color)
-						posArray.add(new int[] {pos_i - i, pos_j + i});
-					canMove = false;
-				}
-			else canMove = false;
-		}
-		//S-E
-		i = 1;
-		canMove = true;
-		while (canMove) {
-			if ((pos_j + i <= 7)&&(pos_i + i <= 7))
-				if ((figures[pos_i + i][pos_j + i] == null)) {
-					posArray.add(new int[] {pos_i + i, pos_j + i});				
-					i++;
-				}
-				else {
-					if(figures[pos_i + i][pos_j + i].getColor() != color)
-						posArray.add(new int[] {pos_i + i, pos_j + i});
-					canMove = false;
-				}
-			else canMove = false;
-		}
-		//S-W
-		i = 1;
-		canMove = true;
-		while (canMove) {
-			if((pos_j - i >= 0)&&(pos_i + i <= 7))
-				if ((figures[pos_i + i][pos_j - i] == null)) {			
-					posArray.add(new int[] {pos_i + i, pos_j - i});				
-					i++;
-				}
-				else {
-					if(figures[pos_i + i][pos_j - i].getColor() != color)
-						posArray.add(new int[] {pos_i + i, pos_j - i});
-					canMove = false;
-				}
-			else canMove = false;
-		}
-		//N-W
-		i = 1;
-		canMove = true;
-		while (canMove) {
-			if((pos_j - i >= 0)&&(pos_i - i >= 0))
-				if ((figures[pos_i - i][pos_j - i] == null)) {
-					posArray.add(new int[] {pos_i - i, pos_j - i});				
-					i++;;
-				}
-				else {
-					if(figures[pos_i - i][pos_j - i].getColor() != color)
-						posArray.add(new int[] {pos_i - i, pos_j - i});
-					canMove = false;
-				}
-			else canMove = false;
-		}
+		castRay(posArray,-1, 1);
+		castRay(posArray,-1,-1);
+		castRay(posArray, 1, 1);
+		castRay(posArray, 1,-1);
 		return posArray;
 	}	
-	
 }//Bishop
+
+final class Queen extends ChessFigure{
+	
+	public Queen(int color, int pos_i, int pos_j) {
+		super(QUEEN, color, pos_i, pos_j);
+	}
+
+	public ArrayList<int[]> getPositionList(){
+		ArrayList<int[]> posArray = new ArrayList<int[]>();
+		castRay(posArray,-1, 1);
+		castRay(posArray,-1,-1);
+		castRay(posArray, 1, 1);
+		castRay(posArray, 1,-1);
+		castRay(posArray,-1, 0);
+		castRay(posArray, 0,-1);
+		castRay(posArray, 0, 1);
+		castRay(posArray, 1, 0);
+		return posArray;
+	}	
+}//Queen
+
+final class King extends ChessFigure{
+	
+	public King(int color, int pos_i, int pos_j) {
+		super(KING, color, pos_i, pos_j);
+	}
+
+	public ArrayList<int[]> getPositionList(){
+		ArrayList<int[]> posArray = new ArrayList<int[]>();
+		castRay(posArray,-1, 1,1);
+		castRay(posArray,-1,-1,1);
+		castRay(posArray, 1, 1,1);
+		castRay(posArray, 1,-1,1);
+		castRay(posArray,-1, 0,1);
+		castRay(posArray, 0,-1,1);
+		castRay(posArray, 0, 1,1);
+		castRay(posArray, 1, 0,1);
+		return posArray;
+	}	
+}//King

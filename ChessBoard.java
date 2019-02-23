@@ -3,26 +3,21 @@ import java.util.Arrays;
 import java.util.Scanner;
 
 public class ChessBoard {
-	Scanner keyRead;
 	private static ChessFigure[][] figureCells = new ChessFigure[8][8];
 	private ArrayList<int[]> posArray;
+	private int[] posCurrent = new int[2];
 	
-	// **internal methods **
-
-	private int[] inputPosition() {
-		int[] input = new int[2];
-		System.out.print("i [0-7] ");
-		input[0] = keyRead.nextInt();
-		System.out.print("j [0-7] ");
-		input[1] = keyRead.nextInt();
-		return input;
-	}
+	// ** create singleton **
 	
-	private void changePosition(int[] posCurrentXY, int[] posNewXY) {
-		figureCells[posNewXY[0]][posNewXY[1]] = figureCells[posCurrentXY[0]][posCurrentXY[1]];
-		figureCells[posNewXY[0]][posNewXY[1]].setPosition(posNewXY[0], posNewXY[1]);
-		figureCells[posCurrentXY[0]][posCurrentXY[1]] = null;
-	}
+    private ChessBoard(){}
+	
+	private static ChessBoard cboard;
+    public static ChessBoard getBoard(){
+        if (cboard==null) {
+            return (cboard = new ChessBoard());
+        } else
+            return cboard;
+    }
 
 	// ** static methods **
 	
@@ -32,8 +27,11 @@ public class ChessBoard {
 	
 	// ** public methods **
 	
-	public ArrayList<int[]> getPosArray(int i, int j){
-		return figureCells[i][j].getPositionList();
+	//save current position and return it
+	public ArrayList<int[]> getPosArray(int[] pos){
+		posCurrent = pos;
+		posArray = figureCells[pos[0]][pos[1]].getPositionList();
+		return posArray;
 	}
 	
 	public boolean canMoveToPosition(int[] posNew) {
@@ -44,17 +42,57 @@ public class ChessBoard {
 		return false;
 	}
 	
+	public void changePosition(int[] posNew) {
+		figureCells[posNew[0]][posNew[1]] = figureCells[posCurrent[0]][posCurrent[1]];
+		figureCells[posNew[0]][posNew[1]].setPosition(posNew[0], posNew[1]);
+		figureCells[posCurrent[0]][posCurrent[1]] = null;
+	}
+	
 	public void init() {
+        //set to null if re-init
+		for (int i=0; i<8; i++){
+            for (int j=0; j<8; j++){
+                figureCells[i][j] = null;
+            }
+        }
 		//create 8 pawns
 		for (int j = 0; j < 8; j++) {	
 			figureCells[1][j] = new Pawn(ChessFigure.ENEMY, 1, j);
 			figureCells[6][j] = new Pawn(ChessFigure.YOU, 6, j);
 		}
+		//create 2 rooks
+		for (int j = 0; j < 8; j+=7) {		
+			figureCells[0][j] = new Rook(ChessFigure.ENEMY, 0, j);
+			figureCells[7][j] = new Rook(ChessFigure.YOU, 7, j);
+		}
+		//create 2 knights
+		for (int j = 1; j < 7; j+=5) {		
+			figureCells[0][j] = new Knight(ChessFigure.ENEMY, 0, j);
+			figureCells[7][j] = new Knight(ChessFigure.YOU, 7, j);
+		}	
 		//create 2 bishops
 		for (int j = 2; j < 6; j+=3) {		
 			figureCells[0][j] = new Bishop(ChessFigure.ENEMY, 0, j);
 			figureCells[7][j] = new Bishop(ChessFigure.YOU, 7, j);
-		}	
+		}
+		//create queen
+		figureCells[0][3] = new Queen(ChessFigure.ENEMY, 0, 3);
+		figureCells[7][3] = new Queen(ChessFigure.YOU, 7, 3);
+		//create king
+		figureCells[0][4] = new King(ChessFigure.ENEMY, 0, 4);
+		figureCells[7][4] = new King(ChessFigure.YOU, 7, 4);
+	}
+	
+	// ** debug-case with console **
+	Scanner keyRead;
+	
+	private int[] inputPosition() {
+		int[] input = new int[2];
+		System.out.print("i [0-7] ");
+		input[0] = keyRead.nextInt();
+		System.out.print("j [0-7] ");
+		input[1] = keyRead.nextInt();
+		return input;
 	}
 	
 	public void drawBoard() {
@@ -77,7 +115,6 @@ public class ChessBoard {
 		System.out.println("Game started!");
 		keyRead = new Scanner(System.in);
 		
-		int[] posCurrent = new int[2];
 		int[] posNew = new int[2];
 		
 		//test for - 4-mal
@@ -89,7 +126,7 @@ public class ChessBoard {
 		
 		if (figureCells[posCurrent[0]][posCurrent[1]] != null) {
 			
-			posArray = getPosArray(posCurrent[0], posCurrent[1]);
+			posArray = getPosArray(posCurrent);
 			System.out.println(Arrays.deepToString(posArray.toArray()));
 			
 			if (posArray.size() > 0){
@@ -98,7 +135,7 @@ public class ChessBoard {
 				posNew = inputPosition();
 				
 				if (canMoveToPosition(posNew)) {
-					changePosition(posCurrent, posNew);
+					changePosition(posNew);
 					drawBoard();
 				}
 			}
