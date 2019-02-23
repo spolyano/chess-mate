@@ -9,15 +9,15 @@ public class ChessBoard {
 	
 	// ** create singleton **
 	
-    private ChessBoard(){}
+	private ChessBoard(){}
 	
 	private static ChessBoard cboard;
-    public static ChessBoard getBoard(){
-        if (cboard==null) {
-            return (cboard = new ChessBoard());
-        } else
-            return cboard;
-    }
+	public static ChessBoard getBoard(){
+    	if (cboard==null) {
+    		return (cboard = new ChessBoard());
+    	} else
+    		return cboard;
+	}
 
 	// ** static methods **
 	
@@ -26,6 +26,19 @@ public class ChessBoard {
 	}
 	
 	// ** public methods **
+
+	public int[][] AIMove(){
+		posCurrent = getEnemyCurrent();
+		int[] newPos = getEnemyNew();
+		changePosition(newPos);
+		int[][] fromTo = {posCurrent, newPos};
+		return (fromTo);
+    }
+
+	//get rank(class name) by coords
+	public String getRank(int[] coords){
+		return (figureCells[coords[0]][coords[1]].getClass().getSimpleName());
+}
 	
 	//save current position and return it
 	public ArrayList<int[]> getPosArray(int[] pos){
