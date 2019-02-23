@@ -65,7 +65,7 @@ public abstract class ChessFigure {
 			if(currentTurn >= turns) break;
 		}
 	}
-	
+
 }
 
 final class Pawn extends ChessFigure{
