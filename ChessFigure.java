@@ -65,15 +65,12 @@ final class Pawn extends ChessFigure{
 		ChessFigure[][] figures = ChessBoard.getFigureCells();
 		int tmpi, tmpj;
 		int currentTurn = 0;
+		castPawnDiag(res, pos_i + di, pos_j + dj - 1);
+		castPawnDiag(res, pos_i + di, pos_j + dj + 1);
 		for(tmpi = pos_i + di, tmpj = pos_j + dj; (tmpi >= 0)&&(tmpi <= 7)&&(tmpj >= 0)&&(tmpj <= 7); tmpi+=di, tmpj+=dj) {
 			currentTurn++;
-			if(figures[tmpi][tmpj] == null) {
+			if(figures[tmpi][tmpj] == null)
 				res.add(new int[] {tmpi, tmpj});
-				castPawnDiag(res, tmpi + di, tmpj - 1);
-				castPawnDiag(res, tmpi + di, tmpj + 1);	
-			}
-			castPawnDiag(res, tmpi, tmpj - 1);
-			castPawnDiag(res, tmpi, tmpj + 1);
 			if(figures[tmpi][tmpj] != null) break;
 			if(currentTurn >= turns) break;
 		}
@@ -90,10 +87,10 @@ final class Pawn extends ChessFigure{
 	public ArrayList<int[]> getPositionList(){
 		ArrayList<int[]> posArray = new ArrayList<int[]>();
 		if (color == ENEMY)
-			if (pos_i == 1) castPawnStep(posArray, 1, 0, 2);
-			else 			castPawnStep(posArray, 1, 0, 1);
+			if (pos_i == 1)	castPawnStep(posArray, 1, 0, 2);
+			else			castPawnStep(posArray, 1, 0, 1);
 		else if (color == YOU)
-			if (pos_i == 6) castPawnStep(posArray,-1, 0, 2);
+			if (pos_i == 6)	castPawnStep(posArray,-1, 0, 2);
 			else			castPawnStep(posArray,-1, 0, 1);
 		return posArray;
 	}
