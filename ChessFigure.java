@@ -33,7 +33,8 @@ public abstract class ChessFigure {
 	
 	protected void castTile(ArrayList<int[]> res, int i, int j) {
 		ChessFigure[][] figures = ChessBoard.getFigureCells();		
-		if(figures[i][j] == null || figures[i][j].getColor() != color) res.add(new int[] {i, j});
+		if(figures[i][j] == null || figures[i][j].getColor() != color)
+			res.add(new int[] {i, j});
 	}
 	
 	protected void castRay(ArrayList<int[]> res, int di, int dj) {
@@ -45,21 +46,13 @@ public abstract class ChessFigure {
 		}
 	}
 	
-	protected void castCross(ArrayList<int[]> res, int di, int dj) {
-		castRay(res, di, dj);
-		castRay(res,-di,-dj);
-		castRay(res,-dj, di);
-		castRay(res, dj,-di);
-	}
-	
 	protected void castRay(ArrayList<int[]> res, int di, int dj, int turns) {
 		ChessFigure[][] figures = ChessBoard.getFigureCells();
 		int tmpi, tmpj;
 		int currentTurn = 0;
 		for(tmpi = pos_i + di, tmpj = pos_j + dj; (tmpi >= 0)&&(tmpi <= 7)&&(tmpj >= 0)&&(tmpj <= 7); tmpi+=di, tmpj+=dj) {
 			currentTurn++;
-			if(figures[tmpi][tmpj] == null || figures[tmpi][tmpj].getColor() != color)
-				res.add(new int[] {tmpi, tmpj});
+			castTile(res, tmpi, tmpj);
 			if(figures[tmpi][tmpj] != null) break;
 			if(currentTurn >= turns) break;
 		}
@@ -117,7 +110,10 @@ final class Rook extends ChessFigure{
 
 	public ArrayList<int[]> getPositionList(){
 		ArrayList<int[]> posArray = new ArrayList<int[]>();
-		castCross(posArray, 1, 0);
+		castRay(posArray,-1, 0);
+		castRay(posArray, 0,-1);
+		castRay(posArray, 0, 1);
+		castRay(posArray, 1, 0);
 		return posArray;
 	}	
 }//Rook
@@ -186,9 +182,14 @@ final class King extends ChessFigure{
 
 	public ArrayList<int[]> getPositionList(){
 		ArrayList<int[]> posArray = new ArrayList<int[]>();
-		for (int i=-1;i<2;i++)
-			for(int j=-1;j<2;j++)
-				if(i!=0 || j!=0) castTile(posArray,pos_i+i,pos_j+j);
+		castRay(posArray,-1, 1,1);
+		castRay(posArray,-1,-1,1);
+		castRay(posArray, 1, 1,1);
+		castRay(posArray, 1,-1,1);
+		castRay(posArray,-1, 0,1);
+		castRay(posArray, 0,-1,1);
+		castRay(posArray, 0, 1,1);
+		castRay(posArray, 1, 0,1);
 		return posArray;
 	}	
 }//King
