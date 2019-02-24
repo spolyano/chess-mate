@@ -30,12 +30,18 @@ public abstract class ChessFigure {
 		
 	public abstract ArrayList<int[]> getPositionList();
 	
+	
+	protected void castTile(ArrayList<int[]> res, int i, int j) {
+		ChessFigure[][] figures = ChessBoard.getFigureCells();		
+		if(figures[i][j] == null || figures[i][j].getColor() != color)
+			res.add(new int[] {i, j});
+	}
+	
 	protected void castRay(ArrayList<int[]> res, int di, int dj) {
 		ChessFigure[][] figures = ChessBoard.getFigureCells();
 		int tmpi, tmpj;
 		for(tmpi = pos_i + di, tmpj = pos_j + dj; (tmpi >= 0)&&(tmpi <= 7)&&(tmpj >= 0)&&(tmpj <= 7); tmpi+=di, tmpj+=dj) {
-			if(figures[tmpi][tmpj] == null || figures[tmpi][tmpj].getColor() != color)
-				res.add(new int[] {tmpi, tmpj});
+			castTile(res, tmpi, tmpj);
 			if(figures[tmpi][tmpj] != null) break;
 		}
 	}
@@ -46,8 +52,7 @@ public abstract class ChessFigure {
 		int currentTurn = 0;
 		for(tmpi = pos_i + di, tmpj = pos_j + dj; (tmpi >= 0)&&(tmpi <= 7)&&(tmpj >= 0)&&(tmpj <= 7); tmpi+=di, tmpj+=dj) {
 			currentTurn++;
-			if(figures[tmpi][tmpj] == null || figures[tmpi][tmpj].getColor() != color)
-				res.add(new int[] {tmpi, tmpj});
+			castTile(res, tmpi, tmpj);
 			if(figures[tmpi][tmpj] != null) break;
 			if(currentTurn >= turns) break;
 		}
@@ -108,7 +113,7 @@ final class Rook extends ChessFigure{
 		castRay(posArray,-1, 0);
 		castRay(posArray, 0,-1);
 		castRay(posArray, 0, 1);
-		castRay(posArray, 1, 0); 
+		castRay(posArray, 1, 0);
 		return posArray;
 	}	
 }//Rook
