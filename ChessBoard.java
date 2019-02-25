@@ -105,6 +105,9 @@ public class ChessBoard {
 	//select coords of random enemy figure, who can move
 	public int[] getEnemyCurrent() {
 		int[] pos = new int[2];
+		int tmpScore = 0;
+		boolean isScore = false;
+		int bestEnemy = 0;;
 		ArrayList<ChessFigure> movableEnemy = new ArrayList<ChessFigure>();
 		
 		for (int i=0; i<8; i++)
@@ -114,12 +117,23 @@ public class ChessBoard {
                 		pos[0] = i;
                 		pos[1] = j;
                 		posArray = getPosArray(pos);
-                		if (posArray.size() > 0)
+                		if (posArray.size() > 0) {
                 			movableEnemy.add(figureCells[i][j]);
+                			if (figureCells[i][j].getScore() > tmpScore) {
+                				bestEnemy = movableEnemy.size() - 1;
+                				tmpScore = figureCells[i][j].getScore();
+                				isScore = true;
+                			}
+                		}
                 	}
 		
 		int cnt = movableEnemy.size();
-		if (cnt > 0) {
+		if (isScore) {
+			pos[0] = movableEnemy.get(bestEnemy).pos_i;
+			pos[1] = movableEnemy.get(bestEnemy).pos_j;
+			posArray = getPosArray(pos);
+		}
+		else if (cnt > 0) {
 			cnt = (int) (Math.random() * cnt);
 			pos[0] = movableEnemy.get(cnt).pos_i;
 			pos[1] = movableEnemy.get(cnt).pos_j;
@@ -134,6 +148,7 @@ public class ChessBoard {
 		int[] pos = new int[2];
 		
 		int cnt = posArray.size();
+		//hm.. best attack instead of random still missing
 		if (cnt > 0) {
 			cnt = (int) (Math.random() * cnt);
 			pos[0] = posArray.get(cnt)[0];
